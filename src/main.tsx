@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, S } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ReactTogether } from 'react-together';
 import App from './App.tsx';
@@ -9,7 +9,7 @@ import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ConfigProvider } from 'antd';
 import '@rainbow-me/rainbowkit/styles.css';
 import './index.css';
-import { AppLoader } from './components';
+// import { AppLoader } from './components';
 
 const queryClient = new QueryClient();
 
@@ -42,9 +42,9 @@ createRoot(document.getElementById('root')!).render(
                 password: 'HappyWheel777Password',
               }}
             >
-              <AppLoader>
+              {/*<AppLoader>*/}
                 <App />
-              </AppLoader>
+              {/*</AppLoader>*/}
             </ReactTogether>
           </RainbowKitProvider>
         </ConfigProvider>
