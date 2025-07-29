@@ -9,10 +9,12 @@ const imagesMap = {
   '0.5': '/Molandak.webp',
   '1': '/Chog.webp',
   '5': '/Salmonad.webp',
-}
+};
 
-export const CubeWithImages = ({ position = [Math.random() * 6 - 3, Math.random() * 2 + 4, Math.random() * 6 - 3], item = '0.05' }) => {
-  console.log(item)
+export const CubeWithImages = ({
+  position = [Math.random() * 6 - 3, Math.random() * 2 + 4, Math.random() * 6 - 3],
+  item = '0.05',
+}) => {
   const textures = useLoader(THREE.TextureLoader, [
     imagesMap[item],
     imagesMap[item],
@@ -22,11 +24,10 @@ export const CubeWithImages = ({ position = [Math.random() * 6 - 3, Math.random(
     imagesMap[item],
   ]);
 
-  const materials = useMemo(() => (
-      textures.map(
-          (texture) => new THREE.MeshStandardMaterial({ map: texture })
-      )
-  ), [textures]);
+  const materials = useMemo(
+    () => textures.map((texture) => new THREE.MeshStandardMaterial({ map: texture })),
+    [textures]
+  );
 
   // Физическое тело
   const [ref] = useBox(() => ({
@@ -36,8 +37,8 @@ export const CubeWithImages = ({ position = [Math.random() * 6 - 3, Math.random(
   }));
 
   return (
-      <mesh ref={ref} material={materials} castShadow receiveShadow>
-        <boxGeometry args={[1, 1, 1]} />
-      </mesh>
+    <mesh ref={ref} material={materials} castShadow receiveShadow>
+      <boxGeometry args={[1, 1, 1]} />
+    </mesh>
   );
 };

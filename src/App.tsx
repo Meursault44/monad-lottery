@@ -19,11 +19,11 @@ import {
   ModalForSendingMon,
   TotalAmount,
   Wheel,
-  CubeWithImages
+  CubeWithImages,
 } from './components';
 
 const App = () => {
-  const [participantData, setParticipantData] = useStateTogether('participantData', {});
+  const [participantData, setParticipantData] = useStateTogether('participantData', null);
 
   const totalPrice = useMemo(() => {
     if (!participantData) return 0;
@@ -37,6 +37,9 @@ const App = () => {
   const { address } = useAccount();
   const chatRef = useRef(null);
 
+  const [textWinner, setTextWinner] = useState<null | string>(null);
+  const [winnerAddress, setWinnerAddress] = useState<null | string>(null);
+
   const {
     data: Participants,
     refetch: refetchParticipants,
@@ -47,9 +50,6 @@ const App = () => {
     functionName: 'getParticipants',
     args: [],
   });
-
-  const [textWinner, setTextWinner] = useState<null | string>(null);
-  const [winnerAddress, setWinnerAddress] = useState<null | string>(null);
 
   const {
     data,
@@ -66,14 +66,14 @@ const App = () => {
       : [],
   });
 
-  const handlerDepositedEvent = useFunctionTogether('handlerDepositedEvent', () => {
-    refetchParticipants();
+  const refetchAsync = async () => {
+    await refetchParticipants();
     refetchDeposits();
-  });
+  };
 
   const handlerWinnerPickedEvent = useFunctionTogether('handlerWinnerPickedEvent', (logs) => {
-    refetchParticipants();
-    refetchDeposits();
+    console.log('WinnerPicked', logs);
+    refetchAsync();
     setTimeout(() => {
       setTextWinner(
         logs[0].args?.winner.slice(0, 6) +
@@ -95,14 +95,16 @@ const App = () => {
     address: MON_LOTTERY_ADDRESS,
     abi: MON_LOTTERY_ABI,
     eventName: 'Deposited',
-    onLogs: handlerDepositedEvent,
+    onLogs: (logs) => {
+      refetchAsync();
+    },
   });
 
   useWatchContractEvent({
     address: MON_LOTTERY_ADDRESS,
     abi: MON_LOTTERY_ABI,
     eventName: 'WinnerPicked',
-    onLogs: handlerWinnerPickedEvent,
+    onLogs: (logs) => handlerWinnerPickedEvent(logs),
     onError(error) {
       console.log('Error!', error);
     },
@@ -110,7 +112,7 @@ const App = () => {
 
   useEffect(() => {
     if (Array.isArray(Participants) && Array.isArray(data) && Participants.length === data.length) {
-      setParticipantData(() => {
+      setParticipantData((prev) => {
         const values = {};
         Participants.forEach((address, i) => {
           if (!data[i].result?.length) return;
@@ -121,7 +123,7 @@ const App = () => {
               0
             ),
             color:
-              participantData?.[address]?.color ??
+              prev?.[address]?.color ??
               '#' + new THREE.Color(Math.random() * 0xffffff).getHexString(),
           };
         });
@@ -156,8 +158,10 @@ const App = () => {
         <Physics>
           <Plane position={[0, 0, 0]} />
           {participantData &&
-            Object.keys(participantData).map((key) =>
-              participantData[key]?.values?.map((item) => <CubeWithImages item={item} />)
+            Object.keys(participantData).map((key, i) =>
+              participantData[key]?.values?.map((item, idx) => (
+                <CubeWithImages key={`${key}-${idx}`} item={item || '0.05'} />
+              ))
             )}
           <Box />
           {textWinner && <Fireworks text={textWinner} />}
@@ -165,6 +169,7 @@ const App = () => {
             participants={participantData}
             totalAmount={totalPrice}
             winnerAddress={winnerAddress}
+            position={[-12, 5, 0]}
           />
         </Physics>
         <TotalAmount value={totalPrice} position={[-2, 10, -3.25]} />
