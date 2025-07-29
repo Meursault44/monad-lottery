@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 export const Plane = (props) => {
   const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }));
-  const texture = useLoader(THREE.TextureLoader, '/floor.jpg');
+  const texture = useLoader(THREE.TextureLoader, '/floor.webp');
 
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;

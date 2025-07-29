@@ -57,7 +57,7 @@ export const ModalForSendingMon: React.FC = () => {
         onChange={(e) => setValue({ character: e.target.value, value: map[e.target.value] })}
       />
       <img
-        src={`/${value.character}.png`}
+        src={`/${value.character}.webp`}
         alt={'picture with Mouch'}
         className={'m-auto mt-5 mb-5 h-[400px]'}
       />
