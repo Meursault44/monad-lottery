@@ -1,6 +1,6 @@
 export { AppLoader } from './AppLoader.tsx';
 export { Box } from './Box.tsx';
-export { Figurine } from './Figurine.tsx';
+export { CubeWithImages } from './CubeWithImages.tsx'
 export { Fireworks } from './FireWorks.tsx';
 export { Header } from './Header.tsx';
 export { ModalForDetails } from './ModalForDetails.jsx';

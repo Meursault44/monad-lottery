@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/cannon';
-import { useFBX, OrbitControls } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useMemo, useEffect, useState, useRef } from 'react';
 import { useStateTogether, useNicknames, Chat } from 'react-together';
@@ -11,7 +11,6 @@ import { MON_LOTTERY_ADDRESS } from './wagmi.ts';
 import { formatEther } from 'viem';
 import { useFunctionTogether } from 'react-together';
 import {
-  Figurine,
   Plane,
   Box,
   Header,
@@ -20,21 +19,10 @@ import {
   ModalForSendingMon,
   TotalAmount,
   Wheel,
+  CubeWithImages
 } from './components';
 
-useFBX.preload('/Mouch.fbx');
-useFBX.preload('/Moyaki.fbx');
-useFBX.preload('/Molandak.fbx');
-useFBX.preload('/Chog.fbx');
-useFBX.preload('/Salmonad.fbx');
-
 const App = () => {
-  const fbx0 = useFBX('/Mouch.fbx');
-  const fbx1 = useFBX('/Moyaki.fbx');
-  const fbx2 = useFBX('/Molandak.fbx');
-  const fbx3 = useFBX('/Chog.fbx');
-  const fbx4 = useFBX('/Salmonad.fbx');
-
   const [participantData, setParticipantData] = useStateTogether('participantData', {});
 
   const totalPrice = useMemo(() => {
@@ -49,17 +37,6 @@ const App = () => {
   const { address } = useAccount();
   const chatRef = useRef(null);
 
-  const getFbx = (val) => {
-    return val === '0.05'
-      ? fbx0
-      : val === '0.1'
-        ? fbx1
-        : val === '0.5'
-          ? fbx2
-          : val === '1'
-            ? fbx3
-            : fbx4;
-  };
   const {
     data: Participants,
     refetch: refetchParticipants,
@@ -180,9 +157,7 @@ const App = () => {
           <Plane position={[0, 0, 0]} />
           {participantData &&
             Object.keys(participantData).map((key) =>
-              participantData[key]?.values?.map((item, i) => (
-                <Figurine fbx={getFbx(item)} key={i} />
-              ))
+              participantData[key]?.values?.map((item) => <CubeWithImages item={item} />)
             )}
           <Box />
           {textWinner && <Fireworks text={textWinner} />}

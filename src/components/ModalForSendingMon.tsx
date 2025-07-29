@@ -45,8 +45,8 @@ export const ModalForSendingMon: React.FC = () => {
       footer={null}
     >
       <Text>
-        Choose how many Mon you want to add to the pool, depending on the amount you choose, it will
-        depend on which figure will fall into the container
+        Select how many Mon you want to add to the pool. Depending on the number of Mon, the texture
+        for the square will be selected
       </Text>
       <Radio.Group
         block
