@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+#multisynq_spinnerOverlay {
+  display: none;
+}
+.ant-tour .ant-btn {
+  font-size: 16px;
+  font-weight: 700;
+  padding-inline: 12px;
+  height: 40px;
+}
+
+.ant-tour-indicators {
+  display: flex;
+  align-items: center;
+}
