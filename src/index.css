@@ -5,6 +5,10 @@ body {
 #multisynq_spinnerOverlay {
   display: none;
 }
+.ant-tour {
+  width: 700px;
+}
+
 .ant-tour .ant-btn {
   font-size: 16px;
   font-weight: 700;

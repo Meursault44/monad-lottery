@@ -1,78 +1,30 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Button, Tour } from 'antd';
-import type { TourProps } from 'antd';
-import { useState, useRef, forwardRef } from 'react';
+import { useState, useRef, forwardRef, useMemo, type RefObject, type ForwardedRef } from 'react';
 import { useStore } from '../store/store.ts';
 import { MON_LOTTERY_ABI } from '../MonLotteryABI.ts';
 import { MON_LOTTERY_ADDRESS } from '../wagmi.ts';
 import { useWriteContract } from 'wagmi';
+import { getTourSteps } from '../data/tourSteps.tsx';
 
-export const Header = forwardRef((_, ref) => {
+export const Header = forwardRef((_, refChat: ForwardedRef<HTMLElement>) => {
   const setIsOpenModalSendMon = useStore((state) => state.setIsOpenModalSendMon);
   const [isOpenTour, setIsOpenTour] = useState(false);
-  const ref1 = useRef(null);
-  const ref2 = useRef(null);
-  const ref3 = useRef(null);
+
+  const refAddMonBtn = useRef<HTMLButtonElement>(null);
+  const refPickWinnerBtn = useRef<HTMLButtonElement>(null);
+  const refTutorialBtn = useRef<HTMLButtonElement>(null);
+
+  const steps = useMemo(() => {
+    return getTourSteps(
+      refAddMonBtn,
+      refPickWinnerBtn,
+      refTutorialBtn,
+      refChat as RefObject<HTMLElement>
+    );
+  }, []);
 
   const { writeContract } = useWriteContract();
-
-  const steps: TourProps['steps'] = [
-    {
-      title: '',
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial1-1.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial1-2.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      target: () => ref1.current,
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial2.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      target: () => ref2.current,
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial3-1.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      target: () => ref2.current,
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial3-2.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      target: () => ref3.current,
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial4.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial5.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      target: () => ref?.current,
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial6.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial7.webp" />,
-      style: { width: 700 },
-    },
-    {
-      title: '',
-      cover: <img alt="tour.webp" src="/Tutorial/Tutorial8.webp" />,
-      style: { width: 700 },
-    },
-  ];
 
   return (
     <div
@@ -81,11 +33,15 @@ export const Header = forwardRef((_, ref) => {
       }
     >
       <div className={'flex items-center gap-[12px]'}>
-        <Button ref={ref1} className={'font-bold'} onClick={() => setIsOpenModalSendMon(true)}>
+        <Button
+          ref={refAddMonBtn}
+          className={'font-bold'}
+          onClick={() => setIsOpenModalSendMon(true)}
+        >
           Add mon to pool
         </Button>
         <Button
-          ref={ref2}
+          ref={refPickWinnerBtn}
           onClick={() => {
             writeContract({
               abi: MON_LOTTERY_ABI,
@@ -97,17 +53,12 @@ export const Header = forwardRef((_, ref) => {
         >
           Get Winner
         </Button>
-        <Button ref={ref3} onClick={() => setIsOpenTour(true)}>
+        <Button ref={refTutorialBtn} onClick={() => setIsOpenTour(true)}>
           Tutorial
         </Button>
       </div>
       <ConnectButton />
-      <Tour
-        open={isOpenTour}
-        onClose={() => setIsOpenTour(false)}
-        steps={steps}
-        nextButton={<Button>dfdf</Button>}
-      />
+      <Tour open={isOpenTour} onClose={() => setIsOpenTour(false)} steps={steps} />
     </div>
   );
 });

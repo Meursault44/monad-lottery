@@ -158,12 +158,12 @@ const App = () => {
         <Physics>
           <Plane position={[0, 0, 0]} />
           <Suspense fallback={null}>
-          {participantData &&
-            Object.keys(participantData).map((key, i) =>
-              participantData[key]?.values?.map((item, idx) => (
+            {participantData &&
+              Object.keys(participantData).map((key, i) =>
+                participantData[key]?.values?.map((item, idx) => (
                   <CubeWithImages key={`${key}-${idx}`} item={item || '0.05'} />
-              ))
-            )}
+                ))
+              )}
           </Suspense>
           <Box />
           {textWinner && <Fireworks text={textWinner} />}

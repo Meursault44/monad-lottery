@@ -31,23 +31,23 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
   const displaySegments = segments.length > 0 ? segments : [defaultSegment];
 
   const [, api] = useCylinder(
-      () => ({
-        mass: 5,
-        args: [0.01, 4, 0.2, 64],
-        position,
-        angularDamping: 0.5,
-        rotation: [0, 0, 0],
-      }),
-      wheelRef
+    () => ({
+      mass: 5,
+      args: [0.01, 4, 0.2, 64],
+      position,
+      angularDamping: 0.5,
+      rotation: [0, 0, 0],
+    }),
+    wheelRef
   );
 
   useBox(
-      () => ({
-        type: 'Static',
-        args: [0.1, 0.1, 0.1],
-        position,
-      }),
-      anchorRef
+    () => ({
+      type: 'Static',
+      args: [0.1, 0.1, 0.1],
+      position,
+    }),
+    anchorRef
   );
 
   useHingeConstraint(wheelRef, anchorRef, {
@@ -111,9 +111,9 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
     });
 
     const mesh = (
-        <mesh key={i} geometry={geometry} rotation={[0, 0, Math.PI / 2]} position={[0, 0, -0.15]}>
-          <meshStandardMaterial color={seg.color} />
-        </mesh>
+      <mesh key={i} geometry={geometry} rotation={[0, 0, Math.PI / 2]} position={[0, 0, -0.15]}>
+        <meshStandardMaterial color={seg.color} />
+      </mesh>
     );
 
     shapes.push(mesh);
@@ -145,12 +145,12 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
   }, [participants]);
 
   return (
-      <>
-        <group ref={wheelRef}>{shapes}</group>
-        <mesh ref={meshArrow} position={[-10, radius * 2 + 1.5, 0]} rotation={[Math.PI, 0, 0]}>
-          <coneGeometry args={[0.3, 1, 16]} />
-          <meshStandardMaterial color="red" />
-        </mesh>
-      </>
+    <>
+      <group ref={wheelRef}>{shapes}</group>
+      <mesh ref={meshArrow} position={[-10, radius * 2 + 1.5, 0]} rotation={[Math.PI, 0, 0]}>
+        <coneGeometry args={[0.3, 1, 16]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { CheckboxGroupProps } from 'antd/es/checkbox';
-import { Modal, Button, Typography, Radio } from 'antd';
+import { Modal, Button, Typography, Radio, Image } from 'antd';
 import { useStore } from '../store/store.ts';
 import { useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
@@ -56,11 +56,13 @@ export const ModalForSendingMon: React.FC = () => {
         buttonStyle="solid"
         onChange={(e) => setValue({ character: e.target.value, value: map[e.target.value] })}
       />
-      <img
-        src={`/${value.character}.webp`}
-        alt={'picture with Mouch'}
-        className={'m-auto mt-5 mb-5 h-[400px]'}
-      />
+      <div className={'mt-5 mb-5'}>
+        <Image
+          src={`/${value.character}.webp`}
+          alt={'picture with Mouch'}
+          className={'m-auto h-[400px]'}
+        />
+      </div>
       <Button
         onClick={() => {
           writeContract({
