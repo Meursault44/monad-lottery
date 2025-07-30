@@ -1,4 +1,4 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { createConfig, webSocket } from 'wagmi';
 import { defineChain } from 'viem';
 
 export const monadTestnet = defineChain({
@@ -14,6 +14,7 @@ export const monadTestnet = defineChain({
   rpcUrls: {
     default: {
       http: [`https://monad-testnet.g.alchemy.com/v2/${import.meta.env['VITE_ALCHEMY_API_KEY']}`],
+      wws: [`wss://monad-testnet.g.alchemy.com/v2/${import.meta.env['VITE_ALCHEMY_API_KEY']}`],
     },
   },
   blockExplorers: {
@@ -24,8 +25,11 @@ export const monadTestnet = defineChain({
 
 export const MON_LOTTERY_ADDRESS = '0xd26C113932d444e886Fafa90feB938CaceDB7ec9';
 
-export const config = getDefaultConfig({
-  appName: 'RainbowKit demo',
-  projectId: 'YOUR_PROJECT_ID',
+export const config = createConfig({
   chains: [monadTestnet],
+  transports: {
+    [monadTestnet.id]: webSocket(
+      `wss://monad-testnet.g.alchemy.com/v2/${import.meta.env['VITE_ALCHEMY_API_KEY']}`
+    ),
+  },
 });
