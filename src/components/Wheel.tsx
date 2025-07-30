@@ -15,23 +15,29 @@ export function Wheel({ position = [0, 0, 0], participants, totalAmount, winnerA
   const wheelRef = useRef<THREE.Group>(null);
   const arrowRef = useRef<THREE.Mesh>(null);
   const [participantsInner, setParticipantsInner] = useState({});
+  console.log(participants);
+  console.log(participantsInner);
 
   const radius = 4;
 
   const segments = useMemo(() => {
-    if (!Object.keys(participantsInner).length) return [];
+    if (!participantsInner || !Object.keys(participantsInner).length) return [];
     return Object.keys(participantsInner).map((key) => ({
       label: key.slice(0, 6) + '...' + key.slice(-4),
-      value: totalAmount ? participantsInner[key].totalValue / totalAmount : 1,
+      value: totalAmount > 0 ? participantsInner[key].totalValue / totalAmount : 1 / Object.keys(participantsInner).length,
       color: participantsInner[key].color,
       address: key,
     }));
   }, [participantsInner, totalAmount]);
 
-  const displaySegments = segments.length > 0 ? segments : [defaultSegment];
+  const displaySegments = useMemo(() => {
+    return segments.length > 0 ? segments : [defaultSegment];
+  }, [segments])
 
   // Создание секторов
   const shapes = useMemo(() => {
+    if (!displaySegments.length) return [];
+
     let startAngle = 0;
     const result = [];
 
@@ -104,7 +110,7 @@ export function Wheel({ position = [0, 0, 0], participants, totalAmount, winnerA
   };
 
   useEffect(() => {
-    if (Object.keys(participants).length) {
+    if (participants && Object.keys(participants).length) {
       setParticipantsInner({ ...participants });
     }
   }, [participants]);
