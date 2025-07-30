@@ -2,7 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { Physics } from '@react-three/cannon';
 import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import { useMemo, useEffect, useState, useRef } from 'react';
+import { useMemo, useEffect, useState, useRef, Suspense } from 'react';
 import { useStateTogether, useNicknames, Chat } from 'react-together';
 import { useReadContract, useReadContracts, useWatchContractEvent, useAccount } from 'wagmi';
 import { TextDetails } from './components/3DText/TextDetails.tsx';
@@ -157,12 +157,14 @@ const App = () => {
         <directionalLight position={[10, 10, 10]} castShadow shadow-mapSize={[2048, 2048]} />
         <Physics>
           <Plane position={[0, 0, 0]} />
+          <Suspense fallback={null}>
           {participantData &&
             Object.keys(participantData).map((key, i) =>
               participantData[key]?.values?.map((item, idx) => (
-                <CubeWithImages key={`${key}-${idx}`} item={item || '0.05'} />
+                  <CubeWithImages key={`${key}-${idx}`} item={item || '0.05'} />
               ))
             )}
+          </Suspense>
           <Box />
           {textWinner && <Fireworks text={textWinner} />}
           <Wheel
