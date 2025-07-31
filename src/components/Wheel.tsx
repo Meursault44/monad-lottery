@@ -1,9 +1,10 @@
-import { useRef, useMemo, useEffect, useState } from 'react';
+import { useRef, useMemo, useEffect, useState, type FC } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useBox, useCylinder, useHingeConstraint } from '@react-three/cannon';
+import { type ParticipantDataType, type ParticipantType, type Triplet } from '@commonTypes';
 import * as THREE from 'three';
 
-const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
 const defaultSegment = {
   label: 'Empty',
@@ -12,11 +13,18 @@ const defaultSegment = {
   address: 'empty',
 };
 
-export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winnerAddress }) {
+type WheelType = {
+  position: Triplet;
+  participants: ParticipantDataType;
+  totalAmount?: number;
+  winnerAddress: string | null;
+};
+
+export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winnerAddress }) => {
   const wheelRef = useRef<THREE.Group>(null);
   const anchorRef = useRef(null);
   const meshArrow = useRef<THREE.Mesh>(null);
-  const [participantsInner, setParticipantsInner] = useState({});
+  const [participantsInner, setParticipantsInner] = useState<Record<string, ParticipantType>>({});
 
   const segments = useMemo(() => {
     if (!Object.keys(participantsInner)) return [];
@@ -26,7 +34,7 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
       color: participantsInner[key].color,
       address: key,
     }));
-  }, [participantsInner]);
+  }, [participantsInner, totalAmount]);
 
   const displaySegments = segments.length > 0 ? segments : [defaultSegment];
 
@@ -139,7 +147,7 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
   }, [winnerAddress]);
 
   useEffect(() => {
-    if (Object.keys(participants).length) {
+    if (participants && Object.keys(participants).length) {
       setParticipantsInner({ ...participants });
     }
   }, [participants]);
@@ -153,4 +161,4 @@ export function Wheel({ position = [-10, 5, 0], participants, totalAmount, winne
       </mesh>
     </>
   );
-}
+};

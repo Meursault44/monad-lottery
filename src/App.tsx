@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import { useMemo, useEffect, useState, useRef, Suspense } from 'react';
 import { useStateTogether, useNicknames, Chat } from 'react-together';
 import { useReadContract, useReadContracts, useWatchContractEvent, useAccount } from 'wagmi';
-import { TextDetails } from './components/3DText/TextDetails.tsx';
+import { TextDetails } from '@src/components/3DText/TextDetails.tsx';
 import { MON_LOTTERY_ABI } from './MonLotteryABI';
 import { MON_LOTTERY_ADDRESS } from './wagmi.ts';
 import { formatEther } from 'viem';
@@ -20,10 +20,26 @@ import {
   TotalAmount,
   Wheel,
   CubeWithImages,
-} from './components';
+} from '@src/components';
+import { type ParticipantDataType, type ValuesType } from '@commonTypes';
+
+type dataDepositsType = {
+  result: bigint[];
+  status: string;
+}[];
+
+type winnerPickedType = {
+  args: {
+    winner: string;
+    amount: bigint;
+  };
+}[];
 
 const App = () => {
-  const [participantData, setParticipantData] = useStateTogether('participantData', null);
+  const [participantData, setParticipantData] = useStateTogether<ParticipantDataType>(
+    'participantData',
+    null
+  );
 
   const totalPrice = useMemo(() => {
     if (!participantData) return 0;
@@ -51,13 +67,16 @@ const App = () => {
     args: [],
   });
 
+  const typedParticipants = Participants as string[] | undefined;
+
   const {
-    data,
+    data: dataDeposits,
     refetch: refetchDeposits,
     isLoading: isLoadingDeposits,
   } = useReadContracts({
-    contracts: Array.isArray(Participants)
-      ? Participants.map((address) => ({
+    // @ts-expect-error difficult type
+    contracts: typedParticipants
+      ? typedParticipants.map((address) => ({
           address: MON_LOTTERY_ADDRESS,
           abi: MON_LOTTERY_ABI,
           functionName: 'getUserDeposits',
@@ -66,36 +85,40 @@ const App = () => {
       : [],
   });
 
+  const typedDataDeposits = dataDeposits as dataDepositsType | undefined;
+
   const refetchAsync = async () => {
     await refetchParticipants();
     refetchDeposits();
   };
 
-  const handlerWinnerPickedEvent = useFunctionTogether('handlerWinnerPickedEvent', (logs) => {
-    console.log('WinnerPicked', logs);
-    refetchAsync();
-    setTimeout(() => {
-      setTextWinner(
-        logs[0].args?.winner.slice(0, 6) +
-          '...' +
-          logs[0].args?.winner.slice(-4) +
-          ' Won  ' +
-          formatEther(logs[0].args?.amount) +
-          ' Mon'
-      );
-      setWinnerAddress(null);
-    }, 6100);
-    setWinnerAddress(logs[0].args?.winner);
-    setTimeout(() => {
-      setTextWinner(null);
-    }, 16000);
-  });
+  const handlerWinnerPickedEvent = useFunctionTogether(
+    'handlerWinnerPickedEvent',
+    (logs: winnerPickedType) => {
+      refetchAsync();
+      setTimeout(() => {
+        setTextWinner(
+          logs[0].args?.winner.slice(0, 6) +
+            '...' +
+            logs[0].args?.winner.slice(-4) +
+            ' Won  ' +
+            formatEther(logs[0].args?.amount) +
+            ' Mon'
+        );
+        setWinnerAddress(null);
+      }, 6100);
+      setWinnerAddress(logs[0].args?.winner);
+      setTimeout(() => {
+        setTextWinner(null);
+      }, 16000);
+    }
+  );
 
   useWatchContractEvent({
     address: MON_LOTTERY_ADDRESS,
     abi: MON_LOTTERY_ABI,
     eventName: 'Deposited',
-    onLogs: (logs) => {
+    onLogs: () => {
       refetchAsync();
     },
   });
@@ -104,21 +127,28 @@ const App = () => {
     address: MON_LOTTERY_ADDRESS,
     abi: MON_LOTTERY_ABI,
     eventName: 'WinnerPicked',
-    onLogs: (logs) => handlerWinnerPickedEvent(logs),
+    onLogs: (logs) => {
+      // @ts-expect-error difficult type
+      handlerWinnerPickedEvent(logs);
+    },
     onError(error) {
       console.log('Error!', error);
     },
   });
 
   useEffect(() => {
-    if (Array.isArray(Participants) && Array.isArray(data) && Participants.length === data.length) {
+    if (
+      typedParticipants &&
+      Array.isArray(typedDataDeposits) &&
+      typedParticipants.length === typedDataDeposits.length
+    ) {
       setParticipantData((prev) => {
-        const values = {};
-        Participants.forEach((address, i) => {
-          if (!data[i].result?.length) return;
+        const values: ParticipantDataType = {};
+        typedParticipants.forEach((address, i) => {
+          if (!typedDataDeposits[i].result?.length) return;
           values[address] = {
-            values: data[i].result.map((r) => formatEther(r)),
-            totalValue: data[i].result.reduce(
+            values: typedDataDeposits[i].result.map((r) => formatEther(r) as ValuesType),
+            totalValue: typedDataDeposits[i].result.reduce(
               (acc, curr) => Number((acc + Number(formatEther(curr))).toFixed(2)),
               0
             ),
@@ -129,10 +159,15 @@ const App = () => {
         });
         return values;
       });
-    } else if (!isLoadingParticipants && !isLoadingDeposits && !Participants?.length && !data) {
+    } else if (
+      !isLoadingParticipants &&
+      !isLoadingDeposits &&
+      !typedParticipants?.length &&
+      !typedDataDeposits
+    ) {
       setParticipantData({});
     }
-  }, [data, Participants]);
+  }, [typedDataDeposits, typedParticipants]);
 
   useEffect(() => {
     if (address) {
@@ -159,7 +194,7 @@ const App = () => {
           <Plane position={[0, 0, 0]} />
           <Suspense fallback={null}>
             {participantData &&
-              Object.keys(participantData).map((key, i) =>
+              Object.keys(participantData).map((key) =>
                 participantData[key]?.values?.map((item, idx) => (
                   <CubeWithImages key={`${key}-${idx}`} item={item || '0.05'} />
                 ))

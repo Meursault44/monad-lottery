@@ -2,11 +2,12 @@ import React, { useMemo } from 'react';
 import { Modal, List } from 'antd';
 import { useStore } from '../store/store.ts';
 import { useStateTogether } from 'react-together';
+import { type ParticipantDataType } from '@commonTypes';
 
 export const ModalForDetails: React.FC = () => {
   const isOpenModalDetails = useStore((state) => state.isOpenModalDetails);
   const setIsOpenModalDetails = useStore((state) => state.setIsOpenModalDetails);
-  const [participants] = useStateTogether('participantData', {});
+  const [participants] = useStateTogether<ParticipantDataType>('participantData', {});
 
   const data = useMemo(() => {
     if (!participants) return [];

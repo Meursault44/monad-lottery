@@ -1,9 +1,10 @@
 import { useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
-import { useMemo } from 'react';
+import { type FC, useMemo } from 'react';
 import { useBox } from '@react-three/cannon';
+import { type Triplet, type ValuesType } from '@commonTypes';
 
-const imagesMap = {
+const imagesMap: Record<ValuesType, string> = {
   '0.05': '/Mouch.webp',
   '0.1': '/Moyaki.webp',
   '0.5': '/Molandak.webp',
@@ -11,7 +12,12 @@ const imagesMap = {
   '5': '/Salmonad.webp',
 };
 
-export const CubeWithImages = ({
+type CubeWithImagesType = {
+  position?: Triplet;
+  item?: ValuesType;
+};
+
+export const CubeWithImages: FC<CubeWithImagesType> = ({
   position = [Math.random() * 6 - 3, Math.random() * 2 + 4, Math.random() * 6 - 3],
   item = '0.05',
 }) => {

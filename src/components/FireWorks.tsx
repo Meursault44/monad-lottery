@@ -1,10 +1,12 @@
 import * as THREE from 'three';
-import React, { useRef, useMemo, useEffect } from 'react';
+import { useRef, useMemo, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { TextWinner } from './3DText/TextWinner.tsx';
 
 const MAX_PARTICLES = 500;
 const PARTICLES_PER_EXPLOSION = 100;
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const Fireworks = ({ text = 'Winner', tempColor = new THREE.Color() }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -24,7 +26,7 @@ export const Fireworks = ({ text = 'Winner', tempColor = new THREE.Color() }) =>
       tempColor.set(colors[i]).toArray(arr, i * 3);
     }
     return arr;
-  }, [colors]);
+  }, [colors, tempColor]);
 
   // Заменено useState на useRef
   const velocities = useRef(Array.from({ length: MAX_PARTICLES }, () => new THREE.Vector3()));
@@ -32,8 +34,6 @@ export const Fireworks = ({ text = 'Winner', tempColor = new THREE.Color() }) =>
     Array.from({ length: MAX_PARTICLES }, () => new THREE.Vector3(0, -10, 0))
   );
   const lifetimes = useRef(Array(MAX_PARTICLES).fill(0));
-
-  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const launchFireworkAt = (pos: THREE.Vector3) => {
     for (let i = 0; i < MAX_PARTICLES; i++) {

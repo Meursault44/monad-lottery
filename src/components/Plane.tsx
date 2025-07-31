@@ -1,9 +1,15 @@
 import { usePlane } from '@react-three/cannon';
 import { useLoader } from '@react-three/fiber';
+import { type FC } from 'react';
 import * as THREE from 'three';
+import { type Triplet } from '@commonTypes';
 
-export const Plane = (props) => {
-  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], ...props }));
+type PlaneType = {
+  position: Triplet;
+};
+
+export const Plane: FC<PlaneType> = ({ position }) => {
+  const [ref] = usePlane(() => ({ rotation: [-Math.PI / 2, 0, 0], position }));
   const texture = useLoader(THREE.TextureLoader, '/floor.webp');
 
   texture.wrapS = THREE.RepeatWrapping;

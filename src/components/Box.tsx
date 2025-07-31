@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 import { useBox } from '@react-three/cannon';
-import { type Triplet } from '@pmndrs/cannon-worker-api/src/types.ts';
+import { type Triplet } from '@commonTypes';
 
 type WallType = {
   position: Triplet;

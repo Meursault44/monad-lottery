@@ -17,6 +17,11 @@ body {
 }
 
 .ant-tour-indicators {
-  display: flex;
+  display: flex !important;
   align-items: center;
+}
+
+.ant-tour-indicator {
+  width: 14px;
+  height: 14px;
 }

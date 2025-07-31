@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-import type { CheckboxGroupProps } from 'antd/es/checkbox';
 import { Modal, Button, Typography, Radio, Image } from 'antd';
 import { useStore } from '../store/store.ts';
 import { useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
 import { MON_LOTTERY_ABI } from '../MonLotteryABI';
 import { MON_LOTTERY_ADDRESS } from '../wagmi.ts';
+import { priceToImageRatioOptions } from '../data/priceToImageRatioOptions.ts';
+import type { CharactersType } from '../commonTypes.ts';
 
 const { Text } = Typography;
-
-const options: CheckboxGroupProps<string>['options'] = [
-  { label: '0.05 Mon', value: 'Mouch' },
-  { label: '0.1 Mon', value: 'Moyaki' },
-  { label: '0.5 Mon', value: 'Molandak' },
-  { label: '1 Mon', value: 'Chog' },
-  { label: '5 Mon', value: 'Salmonad' },
-];
-
-type CharactersType = 'Mouch' | 'Moyaki' | 'Molandak' | 'Chog' | 'Salmonad';
 
 const map: Record<CharactersType, number> = {
   Mouch: 0.05,
@@ -50,11 +41,13 @@ export const ModalForSendingMon: React.FC = () => {
       </Text>
       <Radio.Group
         block
-        options={options}
+        options={priceToImageRatioOptions}
         defaultValue="Mouch"
         optionType="button"
         buttonStyle="solid"
-        onChange={(e) => setValue({ character: e.target.value, value: map[e.target.value] })}
+        onChange={(e) =>
+          setValue({ character: e.target.value, value: map[e.target.value as CharactersType] })
+        }
       />
       <div className={'mt-5 mb-5'}>
         <Image

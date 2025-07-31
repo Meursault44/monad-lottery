@@ -3,7 +3,7 @@ import { type FC } from 'react';
 import { easing } from 'maath';
 import { useFrame } from '@react-three/fiber';
 import { Text3D, Mask, useMask } from '@react-three/drei';
-import { type Triplet } from '@pmndrs/cannon-worker-api/src/types.ts';
+import { type Triplet } from '@commonTypes';
 import * as THREE from 'three';
 
 type TextTotalAmountType = {
