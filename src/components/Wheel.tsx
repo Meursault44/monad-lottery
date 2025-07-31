@@ -1,75 +1,63 @@
-import { useRef, useMemo, useEffect, useState, type FC } from 'react';
+import { useMemo, useRef, useEffect, useState, type FC } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useBox, useCylinder, useHingeConstraint } from '@react-three/cannon';
-import { type ParticipantDataType, type ParticipantType, type Triplet } from '@commonTypes';
+import { type ParticipantDataType } from '@commonTypes';
 import * as THREE from 'three';
 
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-
-const defaultSegment = {
-  label: 'Empty',
-  value: 1,
-  color: '#888', // серый цвет
-  address: 'empty',
-};
 
 type WheelType = {
-  position: Triplet;
+  position: [number, number, number];
   participants: ParticipantDataType;
   totalAmount?: number;
   winnerAddress: string | null;
 };
 
+type segmentsType = { address: string; value: number; color: string }[]
+
+const radius = 4;
+const depth = 0.3;
+
+function easeOutCubic(t: number) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
 export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winnerAddress }) => {
-  const wheelRef = useRef<THREE.Group>(null);
-  const anchorRef = useRef(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const [segments, setSegments] = useState<segmentsType>([{ address: 'empty', value: 1, color: '#888' }]);
   const meshArrow = useRef<THREE.Mesh>(null);
-  const [participantsInner, setParticipantsInner] = useState<Record<string, ParticipantType>>({});
 
-  const segments = useMemo(() => {
-    if (!Object.keys(participantsInner)) return [];
-    return Object.keys(participantsInner).map((key) => ({
-      label: key.slice(0, 6) + '...' + key.slice(-4),
-      value: totalAmount ? participantsInner[key].totalValue / totalAmount : 1,
-      color: participantsInner[key].color,
-      address: key,
-    }));
-  }, [participantsInner, totalAmount]);
+  // Обновляем сегменты, если participants есть и не пустой
+  useEffect(() => {
+    if (participants && Object.keys(participants).length > 0) {
+      const total = totalAmount ?? Object.values(participants).reduce((a, p) => a + p.totalValue, 0);
+      const newSegments = Object.entries(participants).map(([address, p]) => ({
+        address,
+        value: total ? p.totalValue / total : 1,
+        color: p.color,
+      }));
+      setSegments(newSegments);
+    }
+    // Если participants null или пустой — не меняем сегменты
+  }, [participants, totalAmount]);
 
-  const displaySegments = segments.length > 0 ? segments : [defaultSegment];
+  // Анимация вращения
+  const animRef = useRef<{
+    startTime: number | null;
+    duration: number;
+    finalAngle: number;
+    running: boolean;
+  }>({ startTime: null, duration: 6000, finalAngle: 0, running: false });
 
-  const [, api] = useCylinder(
-    () => ({
-      mass: 5,
-      args: [0.01, 4, 0.2, 64],
-      position,
-      angularDamping: 0.5,
-      rotation: [0, 0, 0],
-    }),
-    wheelRef
-  );
+  // Запуск анимации вращения к победителю
+  useEffect(() => {
+    if (!winnerAddress) {
+      animRef.current.running = false;
+      animRef.current.startTime = null;
+      return;
+    }
 
-  useBox(
-    () => ({
-      type: 'Static',
-      args: [0.1, 0.1, 0.1],
-      position,
-    }),
-    anchorRef
-  );
-
-  useHingeConstraint(wheelRef, anchorRef, {
-    pivotA: [0, 0, 0],
-    axisA: [0, 0, 1],
-    pivotB: [0, 0, 0],
-    axisB: [0, 0, 1],
-  });
-
-  const rotateToWinner = () => {
     let startAngle = 0;
     let winnerAngle = 0;
-
-    for (const seg of displaySegments) {
+    for (const seg of segments) {
       const angle = seg.value * Math.PI * 2;
       if (seg.address === winnerAddress) {
         winnerAngle = startAngle + angle / 2;
@@ -78,55 +66,12 @@ export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winn
       startAngle += angle;
     }
 
-    const turns = 5;
-    const finalAngle = 2 * Math.PI * turns + winnerAngle;
-    const duration = 6000;
-
-    let start: number | null = null;
-
-    const animate = (timestamp: number) => {
-      if (!start) start = timestamp;
-      const elapsed = timestamp - start;
-
-      const t = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(t);
-
-      const angle = eased * finalAngle;
-      api.rotation.set(0, 0, -angle); // вот тут минус
-
-      if (t < 1) requestAnimationFrame(animate);
-    };
-
-    requestAnimationFrame(animate);
-  };
-
-  const radius = 4;
-  const shapes = [];
-  let startAngle = 0;
-
-  for (let i = 0; i < displaySegments.length; i++) {
-    const seg = displaySegments[i];
-    const angle = seg.value * Math.PI * 2;
-
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0);
-    shape.arc(0, 0, radius, startAngle, startAngle + angle, false);
-    shape.lineTo(0, 0);
-
-    const geometry = new THREE.ExtrudeGeometry(shape, {
-      depth: 0.3,
-      bevelEnabled: false,
-    });
-
-    const mesh = (
-      <mesh key={i} geometry={geometry} rotation={[0, 0, Math.PI / 2]} position={[0, 0, -0.15]}>
-        <meshStandardMaterial color={seg.color} />
-      </mesh>
-    );
-
-    shapes.push(mesh);
-    startAngle += angle;
-  }
+    const turns = 5; // количество оборотов перед остановкой
+    animRef.current.finalAngle = 2 * Math.PI * turns + winnerAngle;
+    animRef.current.duration = 6000;
+    animRef.current.startTime = null;
+    animRef.current.running = true;
+  }, [winnerAddress, segments]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -138,27 +83,75 @@ export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winn
       // Плавное движение вверх-вниз по синусоиде
       meshArrow.current.position.y = radius * 2 + 1.7 + Math.sin(t * 4) * 0.2;
     }
+    if (!groupRef.current) return;
+
+    if (animRef.current.running) {
+      if (animRef.current.startTime === null) animRef.current.startTime = clock.elapsedTime * 1000;
+
+      const elapsed = clock.elapsedTime * 1000 - animRef.current.startTime;
+      const t = Math.min(elapsed / animRef.current.duration, 1);
+      const eased = easeOutCubic(t);
+      const angle = eased * animRef.current.finalAngle;
+
+      groupRef.current.rotation.z = -angle;
+
+      if (t >= 1) {
+        animRef.current.running = false;
+      }
+    } else {
+      // Без победителя — стоит на месте
+      // Можно поставить rotation.z = 0 или оставить как есть
+      // Вот так:
+      groupRef.current.rotation.z = groupRef.current.rotation.z; // не вращаем
+    }
   });
 
-  useEffect(() => {
-    if (winnerAddress) {
-      rotateToWinner();
-    }
-  }, [winnerAddress]);
+  // Рендер сегментов с глубиной
+  const meshes = useMemo(() => {
+    let startAngle = 0;
+    return segments.map((seg, i) => {
+      const angle = seg.value * Math.PI * 2;
 
-  useEffect(() => {
-    if (participants && Object.keys(participants).length) {
-      setParticipantsInner({ ...participants });
-    }
-  }, [participants]);
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.arc(0, 0, radius, startAngle, startAngle + angle, false);
+      shape.lineTo(0, 0);
+
+      const geometry = new THREE.ExtrudeGeometry(shape, {
+        depth,
+        bevelEnabled: false,
+      });
+
+      startAngle += angle;
+
+      return (
+          <mesh
+              key={i}
+              geometry={geometry}
+              rotation={[0, 0, 0]} // плоскость XY
+              position={[0, 0, -depth / 2]}
+          >
+            <meshStandardMaterial
+                color={seg.color}
+                polygonOffset
+                polygonOffsetFactor={1}
+                polygonOffsetUnits={1}
+                side={THREE.DoubleSide}
+            />
+          </mesh>
+      );
+    });
+  }, [segments]);
 
   return (
-    <>
-      <group ref={wheelRef}>{shapes}</group>
-      <mesh ref={meshArrow} position={[-10, radius * 2 + 1.5, 0]} rotation={[Math.PI, 0, 0]}>
-        <coneGeometry args={[0.3, 1, 16]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-    </>
+      <>
+      <group ref={groupRef} position={position} rotation={[0, 0, 0]}>
+        {meshes}
+      </group>
+        <mesh ref={meshArrow} position={position} rotation={[Math.PI, 0, 0]}>
+          <coneGeometry args={[0.3, 1, 16]} />
+          <meshStandardMaterial color="red" />
+        </mesh>
+      </>
   );
 };

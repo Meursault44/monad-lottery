@@ -206,7 +206,7 @@ const App = () => {
             participants={participantData}
             totalAmount={totalPrice}
             winnerAddress={winnerAddress}
-            position={[-10, 5, 0]}
+            position={[-12, 5, 0]}
           />
         </Physics>
         <TotalAmount value={totalPrice} position={[-2, 10, -3.25]} />
