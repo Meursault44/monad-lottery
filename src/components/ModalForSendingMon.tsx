@@ -35,10 +35,12 @@ export const ModalForSendingMon: React.FC = () => {
       onCancel={() => setIsOpenModalSendMon(false)}
       footer={null}
     >
-      <Text>
-        Select how many Mon you want to add to the pool. Depending on the number of Mon, the texture
-        for the square will be selected
-      </Text>
+      <div className={'mb-[15px]'}>
+        <Text>
+          Select how many Mon you want to add to the pool. Depending on the number of Mon, the
+          texture for the square will be selected
+        </Text>
+      </div>
       <Radio.Group
         block
         options={priceToImageRatioOptions}
@@ -57,6 +59,8 @@ export const ModalForSendingMon: React.FC = () => {
         />
       </div>
       <Button
+        type={'primary'}
+        block
         onClick={() => {
           writeContract({
             abi: MON_LOTTERY_ABI,
