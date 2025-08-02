@@ -72,7 +72,7 @@ export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winn
     const turns = 5;
 
     // Вращаем колесо так, чтобы победитель оказался под стрелкой (угол -π/2)
-    const finalAngle = 2 * Math.PI * turns - winnerAngle;
+    const finalAngle = 2 * Math.PI * turns + winnerAngle;
 
     animRef.current.finalAngle = finalAngle;
     animRef.current.duration = 6000;
@@ -102,7 +102,7 @@ export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winn
       const eased = easeOutCubic(t);
       const angle = eased * animRef.current.finalAngle;
 
-      groupRef.current.rotation.z = angle; // вращаем по Z
+      groupRef.current.rotation.z = -angle; // вращаем по Z
 
       if (t >= 1) {
         animRef.current.running = false;
@@ -113,7 +113,6 @@ export const Wheel: FC<WheelType> = ({ position, participants, totalAmount, winn
       // Оставим как есть (не вращаем)
     }
   });
-  console.log(animRef.current.finalAngle);
 
   // Рендер сегментов с глубиной
   const meshes = useMemo(() => {

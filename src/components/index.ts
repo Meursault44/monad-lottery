@@ -8,3 +8,4 @@ export { ModalForSendingMon } from './ModalForSendingMon.tsx';
 export { Plane } from './Plane';
 export { TotalAmount } from './TotalAmount';
 export { Wheel } from './Wheel';
+export { Spotlights } from './Spotlights.jsx';

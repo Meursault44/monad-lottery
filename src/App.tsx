@@ -20,6 +20,7 @@ import {
   TotalAmount,
   Wheel,
   CubeWithImages,
+  Spotlights,
 } from '@src/components';
 import { type ParticipantDataType, type ValuesType } from '@commonTypes';
 
@@ -187,8 +188,9 @@ const App = () => {
         style={{ height: '100vh' }}
       >
         <color attach="background" args={['lightblue']} />
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.6} />
         <pointLight position={[10, 10, 10]} />
+        {(winnerAddress || textWinner) && <Spotlights />}
         <directionalLight position={[10, 10, 10]} castShadow shadow-mapSize={[2048, 2048]} />
         <Physics>
           <Plane position={[0, 0, 0]} />
