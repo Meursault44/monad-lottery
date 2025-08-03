@@ -1,6 +1,6 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Button, Tour } from 'antd';
-import { useState, useRef, forwardRef, useMemo, type RefObject, type ForwardedRef } from 'react';
+import { useState, useRef, forwardRef, type RefObject, type ForwardedRef } from 'react';
 import { useStore } from '../store/store.ts';
 import { MON_LOTTERY_ABI } from '../MonLotteryABI.ts';
 import { MON_LOTTERY_ADDRESS } from '../wagmi.ts';
