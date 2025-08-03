@@ -22,7 +22,7 @@ export const Header = forwardRef((_, refChat: ForwardedRef<HTMLElement>) => {
       refTutorialBtn,
       refChat as RefObject<HTMLElement>
     );
-  }, [refChat?.current, refAddMonBtn.current, refPickWinnerBtn.current, refTutorialBtn.current]);
+  }, [refChat, refAddMonBtn.current, refPickWinnerBtn.current, refTutorialBtn.current]);
 
   const { writeContract } = useWriteContract();
 
