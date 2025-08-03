@@ -15,14 +15,12 @@ export const Header = forwardRef((_, refChat: ForwardedRef<HTMLElement>) => {
   const refPickWinnerBtn = useRef<HTMLButtonElement>(null);
   const refTutorialBtn = useRef<HTMLButtonElement>(null);
 
-  const steps = useMemo(() => {
-    return getTourSteps(
-      refAddMonBtn,
-      refPickWinnerBtn,
-      refTutorialBtn,
-      refChat as RefObject<HTMLElement>
-    );
-  }, [refChat, refAddMonBtn.current, refPickWinnerBtn.current, refTutorialBtn.current]);
+  const steps = getTourSteps(
+    refAddMonBtn,
+    refPickWinnerBtn,
+    refTutorialBtn,
+    refChat as RefObject<HTMLElement>
+  );
 
   const { writeContract } = useWriteContract();
 
