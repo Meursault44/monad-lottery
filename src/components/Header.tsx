@@ -46,7 +46,7 @@ export const Header = forwardRef((_, refChat: ForwardedRef<HTMLElement>) => {
               address: MON_LOTTERY_ADDRESS,
               functionName: 'pickWinner',
               args: [],
-              gas: BigInt(400_000)
+              gas: BigInt(200_000)
             });
           }}
         >
